@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Googlemaps Test</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="Google_maps_api">AIzaSyDK2CgPstVkQDy-CzVA8rkE6xYrnGxYbHM</string>
+</resources>
