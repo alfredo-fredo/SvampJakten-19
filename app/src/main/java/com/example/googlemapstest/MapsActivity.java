@@ -61,7 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         // Add a marker in Göteborg and move the camera
-        LatLng göteborg = new LatLng(57.70, 11.97);
+        LatLng göteborg = new LatLng(57.70, 11.97); //
         mMap.getUiSettings().setZoomControlsEnabled(true); //zoom + / - button
         mMap.addMarker(new MarkerOptions().position(göteborg).title("YOUR POSITION"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(göteborg, zoomLevel));
