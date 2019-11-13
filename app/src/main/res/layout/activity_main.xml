@@ -81,7 +81,7 @@
             android:layout_marginStart="48dp"
             android:layout_marginTop="64dp"
             android:layout_marginEnd="48dp"
-            android:layout_marginBottom="64dp"
+            android:layout_marginBottom="100dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/include_maps"
             app:layout_constraintEnd_toEndOf="@+id/include_maps"
@@ -95,8 +95,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#F2323232"
-        android:fitsSystemWindows="true"
+        android:background="@drawable/left_drawer_background"
+        android:fitsSystemWindows="false"
         app:menu="@menu/left_drawer_menu" />
 
     <com.google.android.material.navigation.NavigationView
@@ -104,8 +104,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="#F2323232"
-        android:fitsSystemWindows="true"
+        android:background="@drawable/right_drawer_background"
+        android:fitsSystemWindows="false"
         app:menu="@menu/right_drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

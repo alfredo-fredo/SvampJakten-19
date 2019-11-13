@@ -3,4 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <color name="login_color_background">#D91B2432</color>
+    <color name="ghost_white">#f8f8ff</color>
 </resources>
