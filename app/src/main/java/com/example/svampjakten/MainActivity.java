@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
 
-    boolean mustLogin = false;
+    boolean mustLogin = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
