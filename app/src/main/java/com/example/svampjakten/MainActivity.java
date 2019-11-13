@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
 
-    boolean mustLogin = true;
+    boolean mustLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        googleMap.setPadding(100, 1600, 100, 100);
         mMap = googleMap;
         Log.d("myTag", "OnMapReady executed.");
         float zoomLevel = (float) 16.0;
