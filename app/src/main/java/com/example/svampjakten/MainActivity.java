@@ -10,6 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -20,12 +21,14 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -121,7 +124,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         googleMap.setPadding(100, 1600, 100, 100);
+
+        try {
+            boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+            if (!isSuccsess)
+                Toast.makeText(this, "Maps Syles load fail", Toast.LENGTH_SHORT).show();
+        }
+        catch (Resources.NotFoundException ex){
+            ex.printStackTrace();
+        }
+
         mMap = googleMap;
         Log.d("myTag", "OnMapReady executed.");
         float zoomLevel = (float) 16.0;
@@ -134,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
+                mMap.setMyLocationEnabled(true);
         } else {
         Log.d("myTag", "permission denied");
         }
@@ -154,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 longitude = location.getLongitude();
                 latitude = location.getLatitude();
+                mMap.setMyLocationEnabled(true);
             }
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
