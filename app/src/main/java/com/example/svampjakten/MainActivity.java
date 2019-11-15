@@ -16,7 +16,6 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -29,7 +28,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
-
-    boolean mustLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +54,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        Log.d("myTag", "Loglog looog.");
             mapFragment.getMapAsync(this);
-            Log.d("myTag", "Maps was not null, map async..");
-
-
 
         tl = findViewById(R.id.toolbar);
         setSupportActionBar(tl);
@@ -105,17 +99,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        if(mustLogin){
+        popLogin();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser == null){
             popLogin();
         }
 
     }
 
-
-
     void popLogin(){
-        View loginView = findViewById(R.id.include_login);
-        loginView.setVisibility(View.VISIBLE);
+        View loginView = findViewById(R.id.include_center_fragment);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
+
         Animation anim1 = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         Animation anim2 = AnimationUtils.loadAnimation(this, R.anim.scale_up);
 
@@ -137,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         mMap = googleMap;
-        Log.d("myTag", "OnMapReady executed.");
+
         float zoomLevel = (float) 16.0;
 
         /**
