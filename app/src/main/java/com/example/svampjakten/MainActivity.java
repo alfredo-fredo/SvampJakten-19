@@ -99,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        popLogin();
-
     }
 
     @Override
