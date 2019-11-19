@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_create_account"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_fragment_background"
+    tools:context=".NewAccountFragment">
+
+    <TextView
+        android:id="@+id/create_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create a new account "
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/create_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/create_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toTopOf="@+id/create_password"
+        app:layout_constraintEnd_toEndOf="@+id/create_password"
+        app:layout_constraintStart_toStartOf="@+id/create_password" />
+
+    <EditText
+        android:id="@+id/create_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/create_password_repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:ems="10"
+        android:hint="Repeat password"
+        android:inputType="textPassword"
+        app:layout_constraintEnd_toEndOf="@+id/create_password"
+        app:layout_constraintStart_toStartOf="@+id/create_password"
+        app:layout_constraintTop_toBottomOf="@+id/create_password" />
+
+    <Button
+        android:id="@+id/create_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:text="Create account"
+        android:textColor="@color/login_color_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/create_password_repeat"
+        app:layout_constraintStart_toStartOf="@+id/create_password_repeat"
+        app:layout_constraintTop_toBottomOf="@+id/create_password_repeat" />
+</androidx.constraintlayout.widget.ConstraintLayout>
