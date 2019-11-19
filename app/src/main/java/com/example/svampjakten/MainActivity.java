@@ -32,6 +32,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     boolean markerExist;
@@ -42,10 +44,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
 
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference myDbRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        myDbRef = firebaseDatabase.getReference("coordinates");
 
 
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
@@ -180,15 +188,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng destination) {
 
-
+            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if(markerExist){
                     Log.d("victor","Marker exists alredy");
                 }else {
                     MarkerOptions options = new MarkerOptions();
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(true).title("test"));
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false).title("test"));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-                    markerExist = true;
+                    myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
+                    markerExist = false;
 
                 }
 
