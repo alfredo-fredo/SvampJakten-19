@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "608938007011",
+    "firebase_url": "https://projektarbetesvamp.firebaseio.com",
+    "project_id": "projektarbetesvamp",
+    "storage_bucket": "projektarbetesvamp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:608938007011:android:84fd84851d9359e082a8d6",
+        "android_client_info": {
+          "package_name": "com.example.svampjakten"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "608938007011-4eonhv7esuvja6660jedocd0tflchl81.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.svampjakten",
+            "certificate_hash": "3fad73443c4505ed959ac245c79cd6ccf84ea95e"
+          }
+        },
+        {
+          "client_id": "608938007011-p6tberheqdjhhteq2jv2i1meeltf9a72.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.svampjakten",
+            "certificate_hash": "4cd00bf596263e267babe57f135aefe8237f7ae6"
+          }
+        },
+        {
+          "client_id": "608938007011-q3a4lbc9v8u5a0s75bhkqtqt3nehona6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANzA4IF_ysLiC_RYyEK5Ge-_yo5ATA6mo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "608938007011-q3a4lbc9v8u5a0s75bhkqtqt3nehona6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
