@@ -28,11 +28,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
-
+    boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
     DrawerLayout mDrawerLayout;
@@ -173,8 +175,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng destination) {
+
+
+
+                if(markerExist){
+                    Log.d("victor","Marker exists alredy");
+                }else {
+                    MarkerOptions options = new MarkerOptions();
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(true).title("test"));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+                    markerExist = true;
+
+                }
+
+            }
+        });
+
 
     }
-
-
 }
