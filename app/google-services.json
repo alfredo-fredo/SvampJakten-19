@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "608938007011-uo772iu4ect8gbglambq1i2uiv1ikcia.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.svampjakten",
+            "certificate_hash": "93f6ca67e3081edd68081152a0688dedefb52f23"
+          }
+        },
+        {
+          "client_id": "608938007011-sjporbh18ff9r44q7ovdej9t8buk0a2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.svampjakten",
+            "certificate_hash": "d2912e13b26139535295e28bd9bbffa028005f24"
+          }
+        },
+        {
           "client_id": "608938007011-4eonhv7esuvja6660jedocd0tflchl81.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

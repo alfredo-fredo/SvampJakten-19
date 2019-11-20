@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,12 +31,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
     boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
@@ -43,6 +45,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
+
+    private LatLng myLatLng;
+
+    FloatingActionButton fab;
+
+    LocationListener locationListener;
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference myDbRef;
@@ -54,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         myDbRef = firebaseDatabase.getReference("coordinates");
+
 
 
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
@@ -69,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         tl = findViewById(R.id.toolbar);
         setSupportActionBar(tl);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        fab = findViewById(R.id.fab);
 
         mDrawerLayout = findViewById(R.id.drawerLayout);
         leftDrawer = findViewById(R.id.leftDrawer);
@@ -134,9 +145,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         loginView.startAnimation(anim2);
     }
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
 
-        //googleMap.setPadding(100, 1600, 100, 100);
+        mMap = googleMap;
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+        final float zoomLevel = (float) 16.0;
 
         try {
             boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
@@ -146,10 +160,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         catch (Resources.NotFoundException ex){
             ex.printStackTrace();
         }
-
-        mMap = googleMap;
-
-        float zoomLevel = (float) 16.0;
 
         /**
          * Asks users for location permission
@@ -182,6 +192,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.setMyLocationEnabled(true);
             }
         }
+
+        myLatLng = new LatLng(latitude, longitude);
+
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
@@ -197,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false).title("test"));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
                     myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
-                    markerExist = false;
+                    markerExist = true;
 
                 }
 
@@ -205,5 +219,44 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, zoomLevel));
+                Log.d("myTag", myLatLng.latitude + " hello " + myLatLng.longitude);
+            }
+        });
+
+
+
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                try {
+                    myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    Log.d("myTag", myLatLng.latitude + " changed " + myLatLng.longitude);
+
+                }catch (SecurityException e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
     }
+
 }
