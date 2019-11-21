@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationListener locationListener;
 
     FirebaseDatabase firebaseDatabase;
+    FirebaseUser firebaseUser;
     DatabaseReference myDbRef;
 
     @Override
@@ -67,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         firebaseDatabase = FirebaseDatabase.getInstance();
         myDbRef = firebaseDatabase.getReference("coordinates");
 
+        /*if(firebaseUser != null){
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        }*/
 
 
         ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
@@ -100,14 +104,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
-
+                Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
+                findViewById(R.id.ui_and_fragment).startAnimation(anim);
+                findViewById(R.id.ui_and_fragment).setVisibility(View.GONE);
             }
 
             @Override
             public void onDrawerClosed(@NonNull View drawerView) {
-                findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
+                findViewById(R.id.ui_and_fragment).setVisibility(View.VISIBLE);
                 Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_in);
-                findViewById(R.id.main_layout).startAnimation(anim);
+                findViewById(R.id.ui_and_fragment).startAnimation(anim);
             }
 
             @Override
@@ -121,28 +127,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if(mDrawerLayout.isDrawerOpen(leftDrawer)){
                     mDrawerLayout.closeDrawer(leftDrawer);
-                    findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
                 }
                 else{
                     mDrawerLayout.openDrawer(leftDrawer);
-                    Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
-                    findViewById(R.id.main_layout).startAnimation(anim);
-                    anim.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            findViewById(R.id.main_layout).setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
                 }
 
                 if(mDrawerLayout.isDrawerOpen(rightDrawer)){
@@ -156,28 +143,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if(mDrawerLayout.isDrawerOpen(rightDrawer)){
                     mDrawerLayout.closeDrawer(rightDrawer);
-                    findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
                 }
                 else{
                     mDrawerLayout.openDrawer(rightDrawer);
-                    Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
-                    findViewById(R.id.main_layout).startAnimation(anim);
-                    anim.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            findViewById(R.id.main_layout).setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
                 }
 
                 if(mDrawerLayout.isDrawerOpen(leftDrawer)){
@@ -192,15 +160,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onStart() {
         super.onStart();
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(currentUser == null){
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(firebaseUser == null){
+            //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            hideUI();
             popLogin();
         }
-
     }
 
     void popLogin(){
-        View loginView = findViewById(R.id.include_center_fragment);
+        /*View loginView = findViewById(R.id.include_center_fragment);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
 
@@ -208,8 +177,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Animation anim2 = AnimationUtils.loadAnimation(this, R.anim.scale_up);
 
         loginView.startAnimation(anim1);
-        loginView.startAnimation(anim2);
+        loginView.startAnimation(anim2);*/
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
     }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
 
@@ -221,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         try {
             boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
             if (!isSuccsess)
-                Toast.makeText(this, "Maps Syles load fail", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
         }
         catch (Resources.NotFoundException ex){
             ex.printStackTrace();
@@ -243,8 +215,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         /**
          * Getting the user current location
          */
-        double longitude = 0.0;
         double latitude = 0.0;
+        double longitude = 0.0;
 
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -252,28 +224,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             else{
-                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-                mMap.setMyLocationEnabled(true);
+                try {
+                    Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    mMap.setMyLocationEnabled(true);
+                }catch (NullPointerException e){
+                    e.printStackTrace();
+                }
             }
         }
 
         myLatLng = new LatLng(latitude, longitude);
 
+        if(latitude == 0.0 && longitude == 0.0){
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), 2));
+        }else{
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
+        }
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng destination) {
 
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
+            if(firebaseUser != null){
                 if(markerExist){
                     Log.d("victor","Marker exists alredy");
                 }else {
-                    MarkerOptions options = new MarkerOptions();
+                    //MarkerOptions options = new MarkerOptions();
+
                     Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false).title("test"));
                     mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
@@ -284,12 +264,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             return true;
                         }
                     });
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+
                     myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
+
                     markerExist = true;
 
                 }
-
+            }
             }
         });
 
@@ -297,8 +279,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, zoomLevel));
-                Log.d("myTag", myLatLng.latitude + " hello " + myLatLng.longitude);
+                /*mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, zoomLevel));
+                Log.d("myTag", myLatLng.latitude + " hello " + myLatLng.longitude);*/
+                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                    }
+                    else{
+                        try {
+                            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoomLevel));
+                        }catch (NullPointerException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         });
 
@@ -332,6 +328,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
 
+    }
+
+    private void hideUI(){
+        findViewById(R.id.main_layout).setVisibility(View.GONE);
+    }
+
+    private void showUI(){
+        findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
     }
 
 }

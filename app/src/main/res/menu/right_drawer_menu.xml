@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Friends" android:id="@+id/right_menu_friends"></item>
+    <item android:title="My pins" android:id="@+id/right_menu_my_pins"></item>
+    <item android:title="Profile" android:id="@+id/right_menu_profile"></item>
 
-    <item android:title="Friends" android:id="@+id/friends"></item>
-    <item android:title="My pins" android:id="@+id/my_pins"></item>
 </menu>

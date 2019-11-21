@@ -22,96 +22,107 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_layout"
+            android:id="@+id/ui_and_fragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:context=".MainActivity">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="25dp"
-                android:layout_marginBottom="25dp"
-                android:clickable="true"
-                app:backgroundTint="@color/login_color_background_darker"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_mylocation" />
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#00212121"
-                android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:titleMargin="4dp"
-                app:titleMarginStart="150dp">
-
-            </androidx.appcompat.widget.Toolbar>
-
-            <ImageButton
-                android:id="@+id/imgLeft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/drawer_opener_button"
-                android:padding="7dp"
-                app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-                app:layout_constraintStart_toStartOf="@+id/toolbar"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
-
-            <ImageButton
-                android:id="@+id/imgRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/drawer_opener_button"
-                android:padding="7dp"
-                app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-                app:layout_constraintEnd_toEndOf="@+id/toolbar"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/ic_menu_myplaces" />
-
-            <SearchView
-                android:id="@+id/searchView"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="48dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="48dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-                app:layout_constraintEnd_toStartOf="@+id/imgRight"
-                app:layout_constraintStart_toEndOf="@+id/imgLeft"
-                app:layout_constraintTop_toTopOf="@+id/toolbar" />
+            app:layout_constraintTop_toTopOf="parent">
 
             <include
                 android:id="@+id/include_center_fragment"
                 layout="@layout/empty_container"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="64dp"
-                android:layout_marginTop="64dp"
-                android:layout_marginEnd="64dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="100dp"
+                android:layout_marginEnd="50dp"
                 android:layout_marginBottom="100dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+                app:layout_constraintStart_toStartOf="@+id/main_layout"
+                app:layout_constraintTop_toTopOf="@+id/main_layout" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/main_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:context=".MainActivity">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginBottom="25dp"
+                    android:clickable="true"
+                    app:backgroundTint="@color/login_color_background_darker"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:srcCompat="@android:drawable/ic_menu_mylocation" />
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00212121"
+                    android:minHeight="?attr/actionBarSize"
+                    android:theme="?attr/actionBarTheme"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:titleMargin="4dp"
+                    app:titleMarginStart="150dp">
+
+                </androidx.appcompat.widget.Toolbar>
+
+                <ImageButton
+                    android:id="@+id/imgLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/drawer_opener_button"
+                    android:padding="7dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+                    app:layout_constraintStart_toStartOf="@+id/toolbar"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@android:drawable/ic_menu_sort_by_size" />
+
+                <ImageButton
+                    android:id="@+id/imgRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/drawer_opener_button"
+                    android:padding="7dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+                    app:layout_constraintEnd_toEndOf="@+id/toolbar"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@android:drawable/ic_menu_myplaces" />
+
+                <SearchView
+                    android:id="@+id/searchView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="48dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+                    app:layout_constraintEnd_toStartOf="@+id/imgRight"
+                    app:layout_constraintStart_toEndOf="@+id/imgLeft"
+                    app:layout_constraintTop_toTopOf="@+id/toolbar" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -121,7 +132,8 @@
         android:layout_gravity="start"
         android:background="@drawable/left_drawer_background"
         android:fitsSystemWindows="false"
-        app:menu="@menu/left_drawer_menu" />
+        app:menu="@menu/left_drawer_menu"
+        tools:visibility="visible" />
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/rightDrawer"
@@ -130,6 +142,7 @@
         android:layout_gravity="end"
         android:background="@drawable/right_drawer_background"
         android:fitsSystemWindows="false"
+        app:headerLayout="@layout/right_drawer_header"
         app:menu="@menu/right_drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

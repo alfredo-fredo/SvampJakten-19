@@ -46,6 +46,8 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.pin_info_animation));
+
         button = getActivity().findViewById(R.id.login_button);
 
         textView = getActivity().findViewById(R.id.login_createAccount);
@@ -62,39 +64,48 @@ public class LoginFragment extends Fragment {
                 String mail = email.getText().toString();
                 String pass = password.getText().toString();
 
-                firebaseAuth.signInWithEmailAndPassword(mail, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                if(mail.length() < 1 && pass.length() < 1){
+                    getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));
+                    Toast.makeText(getContext(), "Enter email and password.", Toast.LENGTH_SHORT).show();
+                }else{
+                    firebaseAuth.signInWithEmailAndPassword(mail, pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
 
-                            Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.scale_down);
-                            final View centerFrag = getActivity().findViewById(R.id.include_center_fragment);
+                                Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.scale_down);
+                                View centerFrag = getActivity().findViewById(R.id.include_center_fragment);
 
-                            animation.setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
+                                getActivity().findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
 
-                                }
+                                animation.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
 
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    centerFrag.setVisibility(View.GONE);
-                                    Toast.makeText(getContext(), "Login succesful!", Toast.LENGTH_SHORT).show();
-                                }
+                                    }
 
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        getActivity().findViewById(R.id.include_center_fragment).setVisibility(View.GONE);
+                                        Toast.makeText(getContext(), "Login succesful!", Toast.LENGTH_SHORT).show();
+                                    }
 
-                                }
-                            });
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
 
-                            centerFrag.startAnimation(animation);
+                                    }
+                                });
 
-                        } else{
-                            Toast.makeText(getContext(), "Login details incorrect.", Toast.LENGTH_SHORT).show();
+                                centerFrag.startAnimation(animation);
+
+                            } else{
+                                Toast.makeText(getContext(), "Login details incorrect.", Toast.LENGTH_SHORT).show();
+                                getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
             }
         });
 

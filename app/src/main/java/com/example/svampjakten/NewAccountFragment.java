@@ -1,7 +1,6 @@
 package com.example.svampjakten;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,6 +15,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,6 +37,8 @@ public class NewAccountFragment extends Fragment {
 
     Button button;
 
+    TextView toLogin;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,6 +52,9 @@ public class NewAccountFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        view.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.pin_info_animation));
+
+
         email = view.findViewById(R.id.create_email);
 
         password = view.findViewById(R.id.create_password);
@@ -58,13 +63,15 @@ public class NewAccountFragment extends Fragment {
 
         button = view.findViewById(R.id.create_button);
 
+        toLogin = view.findViewById(R.id.create_go_login);
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         Log.d("myTag", "New account view created.");
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
                 Log.d("myTag", "You pressed the buttonen");
 
@@ -73,6 +80,7 @@ public class NewAccountFragment extends Fragment {
                 String passRepeat = passwordRepeat.getText().toString();
 
                 if(mail != null && pass != null && passRepeat != null){
+
                     if(pass.equals(passRepeat)){
                         if(pass.length() >= 6 && pass.length() <= 20){
 
@@ -81,9 +89,9 @@ public class NewAccountFragment extends Fragment {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
 
-                                    View view = getActivity().findViewById(R.id.include_center_fragment);
-
                                     Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.scale_down);
+
+                                    getActivity().findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
 
                                     animation.setAnimationListener(new Animation.AnimationListener() {
                                         @Override
@@ -103,10 +111,11 @@ public class NewAccountFragment extends Fragment {
                                         }
                                     });
 
-                                    view.startAnimation(animation);
+                                    getActivity().findViewById(R.id.include_center_fragment).startAnimation(animation);
 
                                 } else{
                                     Toast.makeText(getContext(), "Failed to create account..", Toast.LENGTH_SHORT).show();
+                                    getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));
                                 }
                             }
                         });
@@ -115,14 +124,22 @@ public class NewAccountFragment extends Fragment {
 
                         } else {
                             Toast.makeText(getContext(), "Password 6 - 20 letters.", Toast.LENGTH_SHORT).show();
+                            getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));
                         }
                     } else {
                         Toast.makeText(getContext(), "Password doesn't match.", Toast.LENGTH_SHORT).show();
-                    }
+                        getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));                    }
                 } else{
                     Toast.makeText(getContext(), "One or more field is empty.", Toast.LENGTH_SHORT).show();
-                }
+                    getActivity().findViewById(R.id.include_center_fragment).startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.shaking_failed));                }
 
+            }
+        });
+
+        toLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
             }
         });
 
