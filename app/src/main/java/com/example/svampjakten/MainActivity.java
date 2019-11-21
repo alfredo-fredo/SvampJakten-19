@@ -1,5 +1,7 @@
 package com.example.svampjakten;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,6 +19,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -38,11 +41,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
+
     boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
     DrawerLayout mDrawerLayout;
-    ActionBarDrawerToggle mToggle;
+    //ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
     private GoogleMap mMap;
 
@@ -86,16 +90,59 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         rightDrawer = findViewById(R.id.rightDrawer);
         imgLeft = findViewById(R.id.imgLeft);
         imgRight = findViewById(R.id.imgRight);
-        mDrawerLayout.setDrawerListener(mToggle);
+
+        //mDrawerLayout.setDrawerListener(mToggle);
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
+                Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_in);
+                findViewById(R.id.main_layout).startAnimation(anim);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
 
         imgLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mDrawerLayout.isDrawerOpen(leftDrawer)){
                     mDrawerLayout.closeDrawer(leftDrawer);
+                    findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
                 }
                 else{
                     mDrawerLayout.openDrawer(leftDrawer);
+                    Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
+                    findViewById(R.id.main_layout).startAnimation(anim);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            findViewById(R.id.main_layout).setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
                 }
 
                 if(mDrawerLayout.isDrawerOpen(rightDrawer)){
@@ -109,9 +156,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 if(mDrawerLayout.isDrawerOpen(rightDrawer)){
                     mDrawerLayout.closeDrawer(rightDrawer);
+                    findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
                 }
                 else{
                     mDrawerLayout.openDrawer(rightDrawer);
+                    Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
+                    findViewById(R.id.main_layout).startAnimation(anim);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            findViewById(R.id.main_layout).setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
                 }
 
                 if(mDrawerLayout.isDrawerOpen(leftDrawer)){
@@ -209,6 +275,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else {
                     MarkerOptions options = new MarkerOptions();
                     Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false).title("test"));
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
+                            Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
+                            findViewById(R.id.include_center_fragment).startAnimation(anim);
+                            return true;
+                        }
+                    });
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
                     myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
                     markerExist = true;
