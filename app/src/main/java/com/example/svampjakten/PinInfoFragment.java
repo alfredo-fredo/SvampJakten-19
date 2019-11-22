@@ -67,5 +67,19 @@ public class PinInfoFragment extends Fragment {
             photoImageView.setImageBitmap(photo);
         }
 
+        getActivity().findViewById(R.id.pin_info_exit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().findViewById(R.id.pin_info_layout).setVisibility(View.GONE);
+            }
+        });
+
+        getActivity().findViewById(R.id.pin_info_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
     }
 }

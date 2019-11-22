@@ -13,11 +13,15 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
@@ -30,6 +34,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -187,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.setBuildingsEnabled(true);
+
 
         final float zoomLevel = (float) 16.0;
 
@@ -251,10 +259,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(firebaseUser != null){
                 if(markerExist){
                     Log.d("victor","Marker exists alredy");
-                }else {
-                    //MarkerOptions options = new MarkerOptions();
-
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false).title("test"));
                     mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -264,6 +268,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             return true;
                         }
                     });
+                }else {
+                    //MarkerOptions options = new MarkerOptions();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
+
+                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false));
+
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(26));
+
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 
                     myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
