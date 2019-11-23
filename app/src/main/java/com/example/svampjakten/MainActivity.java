@@ -11,6 +11,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -46,6 +47,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.security.Permissions;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     boolean markerExist;
@@ -54,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     DrawerLayout mDrawerLayout;
     //ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
-    private GoogleMap mMap;
 
     private LatLng myLatLng;
 
@@ -78,8 +80,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }*/
 
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
+        } else{
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+        }
 
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
 
 
         //
@@ -162,6 +170,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Intent startOver = new Intent(this, MainActivity.class);
+            startActivity(startOver);
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -190,11 +208,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        final GoogleMap mMap;
 
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
-
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        }
 
         final float zoomLevel = (float) 16.0;
 
@@ -210,15 +234,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         /**
          * Asks users for location permission
          */
-
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(true);
-        } else {
-        Log.d("myTag", "permission denied");
-        }
 
         /**
          * Getting the user current location
@@ -296,12 +311,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+                        Log.d("myTag", "Access denied");
                     }
                     else{
                         try {
                             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoomLevel));
+                            Log.d("myTag", "Move camera to location.");
                         }catch (NullPointerException e){
                             e.printStackTrace();
                         }
