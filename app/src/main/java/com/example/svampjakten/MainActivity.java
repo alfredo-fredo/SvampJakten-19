@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
 
+
     private LatLng myLatLng;
 
     FloatingActionButton fab;
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         final float zoomLevel = (float) 16.0;
 
         try {
-            boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+            boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.day_mode));
             if (!isSuccsess)
                 Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
         }
