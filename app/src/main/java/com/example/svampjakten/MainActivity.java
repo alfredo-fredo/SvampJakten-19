@@ -1,8 +1,6 @@
 package com.example.svampjakten;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.UiThread;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -14,17 +12,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -35,7 +28,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -47,10 +39,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.security.Permissions;
-
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
+    MarkerOptions customMarker;
     boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
@@ -208,16 +199,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        final GoogleMap mMap;
 
+        final GoogleMap mMap;
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
+
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+
         }
 
         final float zoomLevel = (float) 16.0;
@@ -284,19 +277,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
                 }else {
-                    //MarkerOptions options = new MarkerOptions();
+
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
-
-                    Marker marker = mMap.addMarker(new MarkerOptions().position(destination).draggable(false));
-
-                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(26));
-
+                    customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude)).title("");
+                    customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.markerpin));
+                    mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-
-                    myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
-
+                    myDbRef.child(firebaseUser.getUid()).setValue(customMarker.getPosition());
                     markerExist = true;
-
                 }
             }
             }
@@ -355,6 +343,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         };
+
+
 
     }
 
