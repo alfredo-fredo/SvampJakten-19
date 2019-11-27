@@ -68,13 +68,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseUser firebaseUser;
     DatabaseReference myDbRef;
 
+
+    static final String USERS_DB = "users";
+
+    static final String PINS_DB = "pins";
+    static final String COORDINATES_DB = "coordinates";
+    static final String PHTOT_DB = "photo";
+    static final String COMMENT_DB = "comment";
+    static final String RATING_DB = "rating";
+
+    static final String PROFILE_DB = "profile";
+    static final String PROFILE_NAME_DB = "name";
+    static final String PROFILE_PHOTO_DB = "photo";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        myDbRef = firebaseDatabase.getReference("coordinates");
+        myDbRef = firebaseDatabase.getReference(USERS_DB);
 
         /*if(firebaseUser != null){
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -293,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 
-                    myDbRef.child(firebaseUser.getUid()).setValue(marker.getPosition());
+                    myDbRef.child(firebaseUser.getUid()).child(PINS_DB).push().child(COORDINATES_DB).setValue(marker.getPosition());
 
                     markerExist = true;
 
