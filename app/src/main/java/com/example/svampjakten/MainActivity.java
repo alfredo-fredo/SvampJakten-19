@@ -280,8 +280,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else {
 
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
-                    customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude)).title("");
-                    customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.markerpin));
+                    customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
+                    customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
                     myDbRef.child(firebaseUser.getUid()).setValue(customMarker.getPosition());
