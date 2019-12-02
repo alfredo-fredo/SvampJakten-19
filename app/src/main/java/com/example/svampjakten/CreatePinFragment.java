@@ -69,10 +69,18 @@ public class CreatePinFragment extends Fragment {
             public void onClick(View v) {
 
 
-                myRef.child("test").setValue(Comment.getText().toString());
+
+                myRef.child(currentuser).setValue(Comment.getText().toString());
                 // Log.d("test",);
+                getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
+
+
+
+
+
 
             }
+
         });
 
         getActivity().findViewById(R.id.create_pin_add_photo).setOnClickListener(new View.OnClickListener() {
@@ -105,5 +113,6 @@ public class CreatePinFragment extends Fragment {
             }
         }
     }
+
 
 }
