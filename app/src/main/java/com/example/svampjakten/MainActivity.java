@@ -8,20 +8,27 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +46,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     MarkerOptions customMarker;
@@ -49,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //ActionBarDrawerToggle mToggle;
     View leftDrawer, rightDrawer;
 
-
+    private int darkModes;
     private LatLng myLatLng;
 
     FloatingActionButton fab;
@@ -65,8 +75,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        //Getting data from SQLite
+        getData();
+
         firebaseDatabase = FirebaseDatabase.getInstance();
         myDbRef = firebaseDatabase.getReference("coordinates");
+
 
         /*if(firebaseUser != null){
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -110,9 +125,51 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
+                SharedPreferences sp = getSharedPreferences("SWITCH_CHANGED", MODE_PRIVATE);
+                Boolean switchStatus = sp.getBoolean("switchStatus", false);
+                System.out.println(switchStatus + " <--");
+
                 Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.fast_fade_out);
                 findViewById(R.id.ui_and_fragment).startAnimation(anim);
                 findViewById(R.id.ui_and_fragment).setVisibility(View.GONE);
+
+                Switch darkModeSwitch = findViewById(R.id.darkmode_switch);
+
+
+                if(switchStatus){
+                    darkModeSwitch.setChecked(true);
+                }
+                else{
+                    darkModeSwitch.setChecked(false);
+                }
+
+                darkModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        SharedPreferences sp = getSharedPreferences("SWITCH_CHANGED", MODE_PRIVATE);
+                        SharedPreferences.Editor spEdit = sp.edit();
+
+
+                        if(isChecked){
+
+                            setData(1);
+                            spEdit.putBoolean("switchStatus", true);
+                            spEdit.commit();
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        }
+                        else{
+                            setData(0);
+                            spEdit.putBoolean("switchStatus", false);
+                            spEdit.commit();
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            finish();
+                            startActivity(intent);
+                        }
+                    }
+                });
             }
 
             @Override
@@ -198,13 +255,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
     }
 
-    @Override
-    public void onMapReady(final GoogleMap googleMap) {
+    private GoogleMap mMap;
 
-        final GoogleMap mMap;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
+
+        if (darkModes == 1) {
+
+            try {
+                boolean isSuccsess = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.night_mode));
+                if (!isSuccsess) {
+                    Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Resources.NotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else{
+            try {
+                boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.day_mode));
+                if (!isSuccsess)
+                    Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
+            }
+            catch (Resources.NotFoundException ex){
+                ex.printStackTrace();
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED &&
@@ -216,14 +296,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final float zoomLevel = (float) 16.0;
 
-        try {
-            boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.day_mode));
-            if (!isSuccsess)
-                Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
-        }
-        catch (Resources.NotFoundException ex){
-            ex.printStackTrace();
-        }
 
         /**
          * Asks users for location permission
@@ -316,7 +388,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -356,5 +427,54 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void showUI(){
         findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
     }
+
+
+    public void setData(int darkmodeStatus) {
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(FeedReaderContract.FeedEntry.DARKMODE, darkmodeStatus);
+
+        db.insert(FeedReaderContract.FeedEntry.TABLE_NAME, null, values);
+    }
+
+    public void getData() {
+        FeedReaderDbHelper dbHelper = new FeedReaderDbHelper(getApplicationContext());
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                BaseColumns._ID,
+                FeedReaderContract.FeedEntry.DARKMODE,
+        };
+
+        Cursor cursor = db.query(
+                FeedReaderContract.FeedEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        List itemIds = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            long itemId = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry._ID));
+            int darkMode = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(FeedReaderContract.FeedEntry.DARKMODE)
+            );
+            System.out.println(darkMode + " <-- ");
+            itemIds.add(itemId);
+
+
+            darkModes = darkMode;
+        }
+        cursor.close();
+    }
+
+
 
 }
