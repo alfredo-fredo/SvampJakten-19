@@ -14,6 +14,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -23,6 +30,11 @@ import static android.app.Activity.RESULT_OK;
  */
 public class CreatePinFragment extends Fragment {
 
+
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    EditText Comment;
+    Button OK;
     static final int REQUEST_TAKE_PHOTO = 1;
 
 
@@ -33,12 +45,35 @@ public class CreatePinFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_create_pin, container, false);
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("message");
+
+
+        final String currentuser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        OK = getActivity().findViewById(R.id.create_pin_OK);
+        Comment = getActivity().findViewById(R.id.create_pin_comment);
+
+
+
+        OK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                myRef.child("test").setValue(Comment.getText().toString());
+                // Log.d("test",);
+
+            }
+        });
 
         getActivity().findViewById(R.id.create_pin_add_photo).setOnClickListener(new View.OnClickListener() {
             @Override
