@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 public class Pin {
 
+    public String placePersonID;
+
     public String placeName;
     public double placeRating;
 
@@ -15,7 +17,9 @@ public class Pin {
     public PinLocation pinLocation;
 
 
-        Pin(String placeName, double placeRating, ArrayList<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
+        Pin(String placePersonID, String placeName, double placeRating, ArrayList<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
+
+        this.placePersonID = placePersonID;
 
         this.placeName = placeName;
 
