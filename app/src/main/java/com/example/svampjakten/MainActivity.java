@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -358,7 +359,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.child(firebaseUser.getUid()).setValue("hello", "hello");
+                    myDbRef.child(firebaseUser.getUid()).setValue(new Pin("Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
+                        }
+                    });
+
                     markerExist = true;
                 }
             }
