@@ -14,55 +14,27 @@ public class Pin {
     public ArrayList<String> pinComments;
     public Bitmap pinPhoto;
 
-    public PinLocation pinLocation;
+    public PinLocation pinLocation = new PinLocation();
 
+        Pin(){
 
-        Pin(String placePersonID, String placeName, double placeRating, ArrayList<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
-
-        this.placePersonID = placePersonID;
-
-        this.placeName = placeName;
-
-        this.placeRating = placeRating;
-
-        if(pinComments != null){
-            this.pinComments = new ArrayList<>(pinComments);
-        }else{
-            this.pinComments = new ArrayList<>();
         }
 
-        if(pinPhoto != null){
-            this.pinPhoto = pinPhoto;
+        Pin(PinLocation pinLocation, String placeName, String placePersonID, double placeRating){
+            this.pinLocation = pinLocation;
+            this.placeName = placeName;
+            this.placePersonID = placePersonID;
+            this.placeRating = placeRating;
         }
-
-        this.pinLocation = pinLocation;
-
-    }
-
-    public String getPlaceName() {
-        return placeName;
-    }
-
-    public double getPlaceRating() {
-        return placeRating;
-    }
-
-    public ArrayList<String> getPinComments() {
-        return pinComments;
-    }
-
-    public Bitmap getPinPhoto() {
-        return pinPhoto;
-    }
-
-    public PinLocation getPinLocation() {
-        return pinLocation;
-    }
 }
 
 class PinLocation{
     public double latitude;
     public double longitude;
+
+    PinLocation(){
+
+    }
 
     PinLocation(double latitude, double longitude){
         this.latitude = latitude;
