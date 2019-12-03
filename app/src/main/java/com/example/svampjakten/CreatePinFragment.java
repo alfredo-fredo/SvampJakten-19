@@ -54,7 +54,7 @@ public class CreatePinFragment extends Fragment {
 
 
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("message");
+        //myRef = database.getReference("message");
 
 
         final String currentuser = FirebaseAuth.getInstance().getCurrentUser().getUid();
