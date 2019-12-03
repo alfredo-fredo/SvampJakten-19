@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FirebaseUser firebaseUser;
     DatabaseReference myDbRef;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -356,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.child(firebaseUser.getUid()).setValue(customMarker.getPosition());
+                    myDbRef.child(firebaseUser.getUid()).setValue("hello", "hello");
                     markerExist = true;
                 }
             }
