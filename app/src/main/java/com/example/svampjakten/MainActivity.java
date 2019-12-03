@@ -1,5 +1,12 @@
 package com.example.svampjakten;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,13 +31,6 @@ import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -44,21 +44,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     MarkerOptions customMarker;
-    long timeStamp = 1;
-    long timeStampEnd = 0;
     boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
@@ -273,34 +267,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
 
-        DatabaseReference pinsRef = firebaseDatabase.getReference("projektarbetesvamp/Pins");
-
-        ArrayList<Pin> pinArrayList = new ArrayList<>();
-        Log.d("myTag", "pinlist Created");
-        pinsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d("myTag", "datachange");
-                if(dataSnapshot.getValue(ArrayList.class) != null){
-                    ArrayList<Pin> pinArrayList = new ArrayList<>(dataSnapshot.getValue(ArrayList.class));
-                    Log.d("myTag", "snapshot not NULL");
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        pinArrayList.add(new Pin(firebaseUser.getUid(), "McDonald",4.3, null, null, new PinLocation(0,0)));
-        Log.d("myTag", pinArrayList.size() + " pinList size");
-        for (int i = 0; i < pinArrayList.size(); i++) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
-        }
-
-
-
         if (darkModes == 1) {
 
             try {
@@ -369,35 +335,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
         }
 
-
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng destination) {
 
             if(firebaseUser != null){
-                if(timeStamp < timeStampEnd){
-
+                if(markerExist){
                     Log.d("victor","Marker exists alredy");
-                    long testMilli = Math.abs(timeStampEnd-timeStamp);
-                    long testMilliToSec = testMilli / 1000;
-                    Log.d("victor","kvar" + testMilliToSec);
-                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec +getString(R.string.time_until), Toast.LENGTH_LONG).show();
-
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
-                                Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
-                                findViewById(R.id.include_center_fragment).startAnimation(anim);
-                                return true;
-                            }
-                        });
-
-
+                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
+                            Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
+                            findViewById(R.id.include_center_fragment).startAnimation(anim);
+                            return true;
+                        }
+                    });
                 }else {
-
-                    timeStampEnd = System.currentTimeMillis() + 10000;
 
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
                     customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
@@ -405,20 +360,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
                     myDbRef.push().setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
-
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
                         }
-
                     });
+
+                    markerExist = false;
                 }
-                timeStamp = System.currentTimeMillis();
-                Log.d("victor", "" + new Date(timeStamp));
-                Log.d("victor", "" + new Date(timeStampEnd));
-
-
-
             }
             }
         });

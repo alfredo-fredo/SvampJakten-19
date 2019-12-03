@@ -3,6 +3,7 @@ package com.example.svampjakten;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,11 +17,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 
 import static android.app.Activity.RESULT_OK;
 
@@ -37,8 +45,16 @@ public class CreatePinFragment extends Fragment {
     Button OK;
     static final int REQUEST_TAKE_PHOTO = 1;
 
+    private Button galleryBtn;
+
+
+
 
     private static final int CAMERA_REQUEST_CODE = 1;
+    private static final int GALLERY_INTENT = 2;
+    private Uri mImageUri = null;
+    private StorageReference mStorage;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,6 +67,23 @@ public class CreatePinFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
+        mStorage = FirebaseStorage.getInstance().getReference();
+
+        galleryBtn = (Button) getView().findViewById(R.id.gallery_btn);
+
+        galleryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+
+                intent.setType("image/*");
+                startActivityForResult(intent, GALLERY_INTENT);
+
+            }
+        });
+
 
 
         /*database = FirebaseDatabase.getInstance();
@@ -105,14 +138,24 @@ public class CreatePinFragment extends Fragment {
         });
     }
 
+
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
         Log.d("Hej", "Pew pew");
-        if (requestCode == CAMERA_REQUEST_CODE) {
+        if (requestCode == GALLERY_INTENT) {
             Log.d("Hej", "Brap brap");
             if (resultCode == RESULT_OK) {
-                Log.d("Hej" , "Bilden har skickats BRAP BRAP");
-                Bundle extras = data.getExtras();
-                Bitmap image = (Bitmap) extras.get("data");
+               Uri uri = data.getData();
+               StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());
+
+               filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                       //Toast.makeText(CreatePinFragment.this,"Upload done", Toast.LENGTH_LONG).show();
+                   }
+               });
+
             }
         }
     }
