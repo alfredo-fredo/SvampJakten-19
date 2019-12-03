@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
+                    myDbRef.push().setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
