@@ -52,10 +52,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     MarkerOptions customMarker;
+    long timeStamp = 1;
+    long timeStampEnd = 0;
     boolean markerExist;
     Toolbar tl;
     ImageButton imgLeft, imgRight;
@@ -368,33 +371,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onMapClick(LatLng destination) {
 
             if(firebaseUser != null){
-                if(markerExist){
+
+                if(timeStamp < timeStampEnd){
+
                     Log.d("victor","Marker exists alredy");
-                    mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                        @Override
-                        public boolean onMarkerClick(Marker marker) {
-                            getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
-                            Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
-                            findViewById(R.id.include_center_fragment).startAnimation(anim);
-                            return true;
-                        }
-                    });
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait), Toast.LENGTH_LONG).show();
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
+                                Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
+                                findViewById(R.id.include_center_fragment).startAnimation(anim);
+                                return true;
+                            }
+                        });
+
+
                 }else {
 
+                    timeStampEnd = System.currentTimeMillis() + 10000;
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
                     customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
                     myDbRef.push().setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
+
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
                         }
-                    });
 
-                    markerExist = false;
+                    });
                 }
+                timeStamp = System.currentTimeMillis();
+                Log.d("victor", "" + new Date(timeStamp));
+                Log.d("victor", "" + new Date(timeStampEnd));
+
             }
             }
         });
