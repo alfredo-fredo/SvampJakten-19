@@ -276,11 +276,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         DatabaseReference pinsRef = firebaseDatabase.getReference("projektarbetesvamp/Pins");
 
         ArrayList<Pin> pinArrayList = new ArrayList<>();
+        Log.d("myTag", "pinlist Created");
         pinsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d("myTag", "datachange");
                 if(dataSnapshot.getValue(ArrayList.class) != null){
                     ArrayList<Pin> pinArrayList = new ArrayList<>(dataSnapshot.getValue(ArrayList.class));
+                    Log.d("myTag", "snapshot not NULL");
                 }
 
             }
@@ -290,7 +293,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-        Log.d("myTag", pinArrayList.size() + "");
+        pinArrayList.add(new Pin(firebaseUser.getUid(), "McDonald",4.3, null, null, new PinLocation(0,0)));
+        Log.d("myTag", pinArrayList.size() + " pinList size");
         for (int i = 0; i < pinArrayList.size(); i++) {
             mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
         }
