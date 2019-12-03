@@ -44,8 +44,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -266,6 +269,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
+
+        DatabaseReference pinsRef = firebaseDatabase.getReference("projektarbetesvamp/Pins");
+
+        ArrayList<Pin> pinArrayList = new ArrayList<>();
+        pinsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue(ArrayList.class) != null){
+                    ArrayList<Pin> pinArrayList = new ArrayList<>(dataSnapshot.getValue(ArrayList.class));
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        for (int i = 0; i < pinArrayList.size(); i++) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
+        }
+
+
 
         if (darkModes == 1) {
 
