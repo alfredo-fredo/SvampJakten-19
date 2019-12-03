@@ -2,27 +2,29 @@ package com.example.svampjakten;
 
 import android.graphics.Bitmap;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Pin {
 
     private String placeName;
     private double placeRating;
 
-    private List<String> pinComments;
+    private ArrayList<String> pinComments;
     private Bitmap pinPhoto;
 
     private PinLocation pinLocation;
 
 
-    Pin(String placeName, double placeRating, List<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
+        Pin(String placeName, double placeRating, ArrayList<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
 
         this.placeName = placeName;
 
         this.placeRating = placeRating;
 
         if(pinComments != null){
-            this.pinComments = pinComments;
+            this.pinComments = new ArrayList<>(pinComments);
+        }else{
+            this.pinComments = new ArrayList<>();
         }
 
         if(pinPhoto != null){
@@ -41,7 +43,7 @@ public class Pin {
         return placeRating;
     }
 
-    public List<String> getPinComments() {
+    public ArrayList<String> getPinComments() {
         return pinComments;
     }
 
