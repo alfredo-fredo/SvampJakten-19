@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot dataValues : dataSnapshot.getChildren()){
-                    Pin myPin = dataValues.getValue(Pin.class);
+                    Pin myPin = dataValues.child("pin").getValue(Pin.class);
                     MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
                     pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(pinMarker);
