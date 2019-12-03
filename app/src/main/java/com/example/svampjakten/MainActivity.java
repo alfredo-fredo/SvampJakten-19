@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
-
+        Log.d("myTag", pinArrayList.size() + "");
         for (int i = 0; i < pinArrayList.size(); i++) {
             mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
         }
