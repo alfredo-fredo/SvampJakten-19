@@ -53,8 +53,8 @@ public class CreatePinFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
 
-        database = FirebaseDatabase.getInstance();
-        //myRef = database.getReference("message");
+        /*database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("message");
 
 
         final String currentuser = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -82,6 +82,9 @@ public class CreatePinFragment extends Fragment {
             }
 
         });
+
+
+         */
 
         getActivity().findViewById(R.id.create_pin_add_photo).setOnClickListener(new View.OnClickListener() {
             @Override
