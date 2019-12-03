@@ -1,12 +1,5 @@
 package com.example.svampjakten;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
@@ -31,6 +24,13 @@ import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,8 +51,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -273,19 +273,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
 
-        DatabaseReference pinsRef = firebaseDatabase.getReference("Pins");
+        DatabaseReference pinsRef = firebaseDatabase.getReference("projektarbetesvamp/Pins");
 
+        ArrayList<Pin> pinArrayList = new ArrayList<>();
         Log.d("myTag", "pinlist Created");
         pinsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d("myTag", "dataSnapshot children count " + dataSnapshot.getChildrenCount());
-                for (DataSnapshot dataValues : dataSnapshot.getChildren()){
-                    Pin myPin = dataValues.child("pin").getValue(Pin.class);
-
-                    MarkerOptions markPinsOptions = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
-                    markPinsOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
-                    mMap.addMarker(markPinsOptions);
+                Log.d("myTag", "datachange");
+                if(dataSnapshot.getValue(ArrayList.class) != null){
+                    ArrayList<Pin> pinArrayList = new ArrayList<>(dataSnapshot.getValue(ArrayList.class));
+                    Log.d("myTag", "snapshot not NULL");
                 }
 
             }
@@ -295,6 +293,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+        pinArrayList.add(new Pin(firebaseUser.getUid(), "McDonald",4.3, null, null, new PinLocation(0,0)));
+        Log.d("myTag", pinArrayList.size() + " pinList size");
+        for (int i = 0; i < pinArrayList.size(); i++) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
+        }
+
 
 
         if (darkModes == 1) {
@@ -365,17 +369,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
         }
 
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng destination) {
 
             if(firebaseUser != null){
-
                 if(timeStamp < timeStampEnd){
 
                     Log.d("victor","Marker exists alredy");
-                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait), Toast.LENGTH_LONG).show();
+                    long testMilli = Math.abs(timeStampEnd-timeStamp);
+                    long testMilliToSec = testMilli / 1000;
+                    Log.d("victor","kvar" + testMilliToSec);
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec +getString(R.string.time_until), Toast.LENGTH_LONG).show();
+
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
                             public boolean onMarkerClick(Marker marker) {
@@ -390,12 +398,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else {
 
                     timeStampEnd = System.currentTimeMillis() + 10000;
+
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
                     customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.push().child("pin").setValue(new Pin(new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude), "MacDonaldo", firebaseUser.getUid(), 4.2)).addOnFailureListener(new OnFailureListener() {
+                    myDbRef.push().setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
 
                         @Override
                         public void onFailure(@NonNull Exception e) {
@@ -407,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 timeStamp = System.currentTimeMillis();
                 Log.d("victor", "" + new Date(timeStamp));
                 Log.d("victor", "" + new Date(timeStampEnd));
+
+
 
             }
             }
