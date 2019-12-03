@@ -1,12 +1,5 @@
 package com.example.svampjakten;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
@@ -31,6 +24,13 @@ import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,8 +51,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -369,17 +369,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
         }
 
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng destination) {
 
             if(firebaseUser != null){
-
                 if(timeStamp < timeStampEnd){
 
                     Log.d("victor","Marker exists alredy");
-                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait), Toast.LENGTH_LONG).show();
+                    long testMilli = Math.abs(timeStampEnd-timeStamp);
+                    long testMilliToSec = testMilli / 1000;
+                    Log.d("victor","kvar" + testMilliToSec);
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec +getString(R.string.time_until), Toast.LENGTH_LONG).show();
+
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
                             public boolean onMarkerClick(Marker marker) {
@@ -394,6 +398,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else {
 
                     timeStampEnd = System.currentTimeMillis() + 10000;
+
                     getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
                     customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
@@ -411,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 timeStamp = System.currentTimeMillis();
                 Log.d("victor", "" + new Date(timeStamp));
                 Log.d("victor", "" + new Date(timeStampEnd));
+
+
 
             }
             }

@@ -4,5 +4,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="google_maps_key">AIzaSyDK2CgPstVkQDy-CzVA8rkE6xYrnGxYbHM</string>
-    <string name="please_wait">vänta</string>
+    <string name="please_wait">Please wait&#160;</string>
+    <string name="time_until">&#160;seconds</string>
+
 </resources>
