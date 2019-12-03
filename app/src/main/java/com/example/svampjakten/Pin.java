@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 public class Pin {
 
-    private String placeName;
-    private double placeRating;
+    public String placeName;
+    public double placeRating;
 
-    private ArrayList<String> pinComments;
-    private Bitmap pinPhoto;
+    public ArrayList<String> pinComments;
+    public Bitmap pinPhoto;
 
-    private PinLocation pinLocation;
+    public PinLocation pinLocation;
 
 
         Pin(String placeName, double placeRating, ArrayList<String> pinComments, Bitmap pinPhoto, PinLocation pinLocation){
@@ -57,8 +57,8 @@ public class Pin {
 }
 
 class PinLocation{
-    double latitude;
-    double longitude;
+    public double latitude;
+    public double longitude;
 
     PinLocation(double latitude, double longitude){
         this.latitude = latitude;
