@@ -275,7 +275,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         DatabaseReference pinsRef = firebaseDatabase.getReference("Pins");
 
-        ArrayList<Pin> pinArrayList = new ArrayList<>();
         Log.d("myTag", "pinlist Created");
         pinsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -283,9 +282,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 for (DataSnapshot dataValues : dataSnapshot.getChildren()){
                     Pin myPin = dataValues.child("pin").getValue(Pin.class);
-                    MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
-                    pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
-                    mMap.addMarker(pinMarker);
+                    try {
+                        MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
+                        pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
+                        mMap.addMarker(pinMarker);
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                    }
                 }
 
             }
