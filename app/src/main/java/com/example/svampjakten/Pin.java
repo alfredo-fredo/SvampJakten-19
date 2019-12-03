@@ -14,7 +14,7 @@ public class Pin {
     public ArrayList<String> pinComments;
     public Bitmap pinPhoto;
 
-    public PinLocation pinLocation = new PinLocation();
+    public PinLocation pinLocation;
 
         Pin(){
 
