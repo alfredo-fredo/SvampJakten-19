@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     });
 
-                    markerExist = true;
+                    markerExist = false;
                 }
             }
             }
