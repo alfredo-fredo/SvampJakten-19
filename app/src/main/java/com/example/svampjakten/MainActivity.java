@@ -48,11 +48,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 
@@ -275,25 +273,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.setBuildingsEnabled(true);
 
-        DatabaseReference pinsRef = firebaseDatabase.getReference("Pins");
+        DatabaseReference pinsRef = firebaseDatabase.getReference("projektarbetesvamp/Pins");
 
-
-
+        ArrayList<Pin> pinArrayList = new ArrayList<>();
         Log.d("myTag", "pinlist Created");
         pinsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d("myTag", "datachange");
-
-                List<Pin> pinArrayList = new ArrayList<>();
-
-                /*for (DataSnapshot dataValues : dataSnapshot.getChildren()){
-                    Pin myPin = dataValues.getValue(Pin.class);
-                    pinArrayList.add(myPin);
-                }*/
-
-                for (int i = 0; i < pinArrayList.size(); i++) {
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
+                if(dataSnapshot.getValue(ArrayList.class) != null){
+                    ArrayList<Pin> pinArrayList = new ArrayList<>(dataSnapshot.getValue(ArrayList.class));
+                    Log.d("myTag", "snapshot not NULL");
                 }
 
             }
@@ -303,6 +293,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+        pinArrayList.add(new Pin(firebaseUser.getUid(), "McDonald",4.3, null, null, new PinLocation(0,0)));
+        Log.d("myTag", pinArrayList.size() + " pinList size");
+        for (int i = 0; i < pinArrayList.size(); i++) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(pinArrayList.get(i).pinLocation.latitude, pinArrayList.get(i).pinLocation.longitude)));
+        }
+
 
 
         if (darkModes == 1) {
@@ -403,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                     mMap.addMarker(customMarker);
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.push().setValue(new Pin(new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude), "MakiDonken", firebaseUser.getUid(), 4.2)).addOnFailureListener(new OnFailureListener() {
+                    myDbRef.push().setValue(new Pin(firebaseUser.getUid(),"Mc.Donaldooos", 3.8, null, null, new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude))).addOnFailureListener(new OnFailureListener() {
 
                         @Override
                         public void onFailure(@NonNull Exception e) {
