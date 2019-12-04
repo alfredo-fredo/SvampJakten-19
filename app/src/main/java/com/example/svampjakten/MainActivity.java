@@ -9,22 +9,27 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -41,20 +46,26 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     MarkerOptions customMarker;
     long timeStamp = 1;
@@ -78,11 +89,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     DatabaseReference myDbRef;
 
     static String PINS_DB_REF = "Pins";
+    private ImageView imageView;
+    static final int TAKE_IMAGE_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        imageView =findViewById(R.id.imageView);
 
 
         //Getting data from SQLite
@@ -100,10 +115,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED) {
-        } else{
+        } else {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-
 
 
         //
@@ -111,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);
 
         tl = findViewById(R.id.toolbar);
         setSupportActionBar(tl);
@@ -145,10 +159,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Switch darkModeSwitch = findViewById(R.id.darkmode_switch);
 
 
-                if(switchStatus){
+                if (switchStatus) {
                     darkModeSwitch.setChecked(true);
-                }
-                else{
+                } else {
                     darkModeSwitch.setChecked(false);
                 }
 
@@ -159,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         SharedPreferences.Editor spEdit = sp.edit();
 
 
-                        if(isChecked){
+                        if (isChecked) {
 
                             setData(1);
                             spEdit.putBoolean("switchStatus", true);
@@ -168,8 +181,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             finish();
                             startActivity(intent);
 
-                        }
-                        else{
+                        } else {
                             setData(0);
                             spEdit.putBoolean("switchStatus", false);
                             spEdit.commit();
@@ -197,14 +209,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         imgLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mDrawerLayout.isDrawerOpen(leftDrawer)){
+                if (mDrawerLayout.isDrawerOpen(leftDrawer)) {
                     mDrawerLayout.closeDrawer(leftDrawer);
-                }
-                else{
+                } else {
                     mDrawerLayout.openDrawer(leftDrawer);
                 }
 
-                if(mDrawerLayout.isDrawerOpen(rightDrawer)){
+                if (mDrawerLayout.isDrawerOpen(rightDrawer)) {
                     mDrawerLayout.closeDrawer(rightDrawer);
                 }
             }
@@ -213,14 +224,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         imgRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mDrawerLayout.isDrawerOpen(rightDrawer)){
+                if (mDrawerLayout.isDrawerOpen(rightDrawer)) {
                     mDrawerLayout.closeDrawer(rightDrawer);
-                }
-                else{
+                } else {
                     mDrawerLayout.openDrawer(rightDrawer);
                 }
 
-                if(mDrawerLayout.isDrawerOpen(leftDrawer)){
+                if (mDrawerLayout.isDrawerOpen(leftDrawer)) {
                     mDrawerLayout.closeDrawer(leftDrawer);
                 }
             }
@@ -243,14 +253,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onStart();
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(firebaseUser == null){
+        if (firebaseUser == null) {
             //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             hideUI();
             popLogin();
         }
     }
 
-    void popLogin(){
+    void popLogin() {
         /*View loginView = findViewById(R.id.include_center_fragment);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new LoginFragment()).commit();
@@ -280,13 +290,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot dataValues : dataSnapshot.getChildren()){
+                for (DataSnapshot dataValues : dataSnapshot.getChildren()) {
                     Pin myPin = dataValues.child("pin").getValue(Pin.class);
                     try {
                         MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
                         pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                         mMap.addMarker(pinMarker);
-                    }catch (NullPointerException e){
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
@@ -309,14 +319,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (Resources.NotFoundException ex) {
                 ex.printStackTrace();
             }
-        }
-        else{
+        } else {
             try {
                 boolean isSuccsess = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.day_mode));
                 if (!isSuccsess)
                     Toast.makeText(this, "Maps Styles load fail", Toast.LENGTH_SHORT).show();
-            }
-            catch (Resources.NotFoundException ex){
+            } catch (Resources.NotFoundException ex) {
                 ex.printStackTrace();
             }
         }
@@ -346,14 +354,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
-            }
-            else{
+            } else {
                 try {
                     Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
                     mMap.setMyLocationEnabled(true);
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
@@ -361,10 +368,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         myLatLng = new LatLng(latitude, longitude);
 
-        if(latitude == 0.0 && longitude == 0.0){
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), 2));
-        }else{
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude), zoomLevel));
+        if (latitude == 0.0 && longitude == 0.0) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 2));
+        } else {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), zoomLevel));
         }
 
 
@@ -373,14 +380,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onMapClick(LatLng destination) {
 
-            if(firebaseUser != null){
-                if(timeStamp < timeStampEnd){
+                if (firebaseUser != null) {
+                    if (timeStamp < timeStampEnd) {
 
-                    Log.d("victor","Marker exists alredy");
-                    long testMilli = Math.abs(timeStampEnd-timeStamp);
-                    long testMilliToSec = testMilli / 1000;
-                    Log.d("victor","kvar" + testMilliToSec);
-                    Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec +getString(R.string.time_until), Toast.LENGTH_LONG).show();
+                        Log.d("victor", "Marker exists alredy");
+                        long testMilli = Math.abs(timeStampEnd - timeStamp);
+                        long testMilliToSec = testMilli / 1000;
+                        Log.d("victor", "kvar" + testMilliToSec);
+                        Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec + getString(R.string.time_until), Toast.LENGTH_LONG).show();
 
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
@@ -393,31 +400,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         });
 
 
-                }else {
+                    } else {
 
-                    timeStampEnd = System.currentTimeMillis() + 10000;
+                        timeStampEnd = System.currentTimeMillis() + 10000;
 
-                    getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
-                    customMarker = new MarkerOptions().position(new LatLng(destination.latitude,destination.longitude));
-                    customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
-                    mMap.addMarker(customMarker);
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                    myDbRef.push().setValue(new Pin(new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude), "Makidonken", firebaseUser.getUid(), 4.3)).addOnFailureListener(new OnFailureListener() {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
+                        customMarker = new MarkerOptions().position(new LatLng(destination.latitude, destination.longitude));
+                        customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
+                        mMap.addMarker(customMarker);
+                        mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+                        myDbRef.push().setValue(new Pin(new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude), "Makidonken", firebaseUser.getUid(), 4.3)).addOnFailureListener(new OnFailureListener() {
 
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
-                        }
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
+                            }
 
-                    });
+                        });
+                    }
+                    timeStamp = System.currentTimeMillis();
+                    Log.d("victor", "" + new Date(timeStamp));
+                    Log.d("victor", "" + new Date(timeStampEnd));
+
+
                 }
-                timeStamp = System.currentTimeMillis();
-                Log.d("victor", "" + new Date(timeStamp));
-                Log.d("victor", "" + new Date(timeStampEnd));
-
-
-
-            }
             }
         });
 
@@ -431,13 +437,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         Log.d("myTag", "Access denied");
-                    }
-                    else{
+                    } else {
                         try {
                             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), zoomLevel));
                             Log.d("myTag", "Move camera to location.");
-                        }catch (NullPointerException e){
+                        } catch (NullPointerException e) {
                             e.printStackTrace();
                         }
                     }
@@ -453,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                     Log.d("myTag", myLatLng.latitude + " changed " + myLatLng.longitude);
 
-                }catch (SecurityException e){
+                } catch (SecurityException e) {
                     e.printStackTrace();
                 }
             }
@@ -475,14 +480,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
 
 
-
     }
 
-    private void hideUI(){
+    private void hideUI() {
         findViewById(R.id.main_layout).setVisibility(View.GONE);
     }
 
-    private void showUI(){
+    private void showUI() {
         findViewById(R.id.main_layout).setVisibility(View.VISIBLE);
     }
 
@@ -533,6 +537,89 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         cursor.close();
     }
 
+    //Kod för att ladda upp en ny profilbild med kameran /Anton
+    public void handelImageClick(View view) {
+
+        Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intentCamera.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intentCamera, TAKE_IMAGE_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == TAKE_IMAGE_CODE) {
+            switch (requestCode) {
+                case RESULT_OK:
+                    Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                    imageView.setImageBitmap(bitmap);
+                    handleUpload(bitmap);
+            }
+        }
+    }
+
+    private void handleUpload(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final StorageReference reference = FirebaseStorage.getInstance().getReference().child("profilImages").child(uid + ".jpeg");
+
+        //Uri uri = data.getData();
+        //StorageReference filepath = reference.child("ProfileImage").child(uri.getLastPathSegment());
+        reference.putBytes(baos.toByteArray()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            /* filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                 @Override
+                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                     getDownloadUrl(reference);
+                 }
+             });
+         }*/
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                getDownloadUrl(reference);
+                Log.d("Anton", "onSuccess: ");
+                Toast.makeText(MainActivity.this,"Picture uploaded!",Toast.LENGTH_LONG);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Anton", "onFailure: ", e.getCause());
+                Toast.makeText(MainActivity.this,"Uploaded failed!",Toast.LENGTH_LONG);
+            }
+        });
+    }
 
 
+    private void getDownloadUrl(StorageReference reference) {
+        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Log.d("Anton", "onSuccess: " + uri);
+                setUserProfileUrl(uri);
+            }
+        });
+
+    }
+
+    private void setUserProfileUrl(Uri uri) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setPhotoUri(uri).build();
+
+        user.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(MainActivity.this, "Profile image uploaded", Toast.LENGTH_SHORT);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "Profile image failed...", Toast.LENGTH_SHORT);
+            }
+        });
+
+
+    }
 }
