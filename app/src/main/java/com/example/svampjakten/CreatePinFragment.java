@@ -1,6 +1,7 @@
 package com.example.svampjakten;
 
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -33,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -169,7 +172,15 @@ public class CreatePinFragment extends Fragment {
         if (requestCode == GALLERY_INTENT) {
             Log.d("Hej", "Brap brap");
             if (resultCode == RESULT_OK) {
-                uploadPhoto = (Bitmap) data.getExtras().get("data");
+                Uri uri = data.getData();
+                try {
+                    uploadPhoto = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), uri);
+                }catch (FileNotFoundException e){
+                    e.printStackTrace();
+                }catch (IOException i){
+                    i.printStackTrace();
+                }
+
             }
 
         }
