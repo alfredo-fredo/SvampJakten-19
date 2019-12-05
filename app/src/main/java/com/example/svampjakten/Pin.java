@@ -18,11 +18,11 @@ public class Pin {
 
         }
 
-        Pin(PinLocation pinLocation, String placeName, String placePersonID, String comment, double placeRating){
+        Pin(PinLocation pinLocation, String placeName, String comment, String placePersonID, double placeRating){
             this.pinLocation = pinLocation;
             this.placeName = placeName;
-            this.placePersonID = placePersonID;
             this.comment = comment;
+            this.placePersonID = placePersonID;
             this.placeRating = placeRating;
         }
 }
