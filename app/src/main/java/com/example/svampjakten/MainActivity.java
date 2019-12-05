@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot dataValues : dataSnapshot.getChildren()) {
-                    Pin myPin = dataValues.child("pin").getValue(Pin.class);
+                    Pin myPin = dataValues.getValue(Pin.class);
                     try {
                         MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
                         pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
