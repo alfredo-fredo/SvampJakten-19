@@ -316,12 +316,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
                             public boolean onMarkerClick(Marker marker) {
-                                /*FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();   <------ THIS CODE NEED WORK..
-                                Uri storageReference = firebaseStorage.getReference("kamerabilder").child(pinReference + ".jpeg").getDownloadUrl().getResult();
+                                FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+                                StorageReference storageReference = firebaseStorage.getReference("kamerabilder").child(pinReference + ".jpeg");
 
-                                Fragment fragment = new PinInfoFragment(myPin.placeName, firebaseUser.getEmail(), myPin.comment, storageReference, myPin.placeRating);
-                                getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, fragment);
-                                */return true;
+                                storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Log.d("myTag", "Success getDownload");
+                                        Fragment fragment = new PinInfoFragment(myPin.placeName, firebaseUser.getEmail(), myPin.comment, uri, myPin.placeRating);
+                                        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, fragment).commit();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d("myTag", "Failed getDownload");
+                                    }
+                                });
+                                return true;
                             }
                         });
                     } catch (NullPointerException e) {
