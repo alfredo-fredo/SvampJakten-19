@@ -65,7 +65,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback/*, CreatedPinCallBack*/{
 
     MarkerOptions customMarker;
     long timeStamp = 1;
@@ -275,6 +275,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private GoogleMap mMap;
+    final float zoomLevel = (float) 16.0;
+
+    /*@Override
+    public void pinCreatedCallBack() {
+
+            //mMap.addMarker(customMarker);
+            //mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
+        Toast.makeText(MainActivity.this, "Should create pin now..", Toast.LENGTH_LONG).show();
+    }*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -309,6 +318,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+
+
         if (darkModes == 1) {
 
             try {
@@ -336,8 +347,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
 
         }
-
-        final float zoomLevel = (float) 16.0;
 
 
         /**
@@ -406,8 +415,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         customMarker = new MarkerOptions().position(new LatLng(destination.latitude, destination.longitude));
                         customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
-                        mMap.addMarker(customMarker);
-                        mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
 
                         getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment(customMarker.getPosition().latitude, customMarker.getPosition().longitude)).commit();
                     }
@@ -419,6 +426,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+
 
 
         fab.setOnClickListener(new View.OnClickListener() {

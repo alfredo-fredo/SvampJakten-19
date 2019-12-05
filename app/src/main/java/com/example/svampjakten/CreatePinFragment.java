@@ -35,7 +35,6 @@ import java.io.ByteArrayOutputStream;
 
 import static android.app.Activity.RESULT_OK;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -44,10 +43,13 @@ public class CreatePinFragment extends Fragment {
     double pinLatitude;
     double pinLongitude;
 
+
     CreatePinFragment(double pinLatitude, double pinLongitude){
         this.pinLatitude = pinLatitude;
         this.pinLongitude = pinLongitude;
     }
+
+    //CreatedPinCallBack createdPinCallBack;
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference myDbRef;
@@ -180,6 +182,8 @@ public class CreatePinFragment extends Fragment {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Toast.makeText(getContext(), "Pin created.", Toast.LENGTH_LONG).show();
                 getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
+
+                //createdPinCallBack.pinCreatedCallBack();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -191,7 +195,7 @@ public class CreatePinFragment extends Fragment {
     }
 
     private void createPin(String placeName, double starRating, final Bitmap bitmap){
-        final String pushRef = "koolaKillen";
+        final String pushRef = myDbRef.push().getKey();
         myDbRef.child(pushRef).setValue(new Pin(new PinLocation(pinLatitude, pinLongitude), placeName, firebaseUser.getUid(), starRating)).addOnFailureListener(new OnFailureListener() {
 
             @Override
