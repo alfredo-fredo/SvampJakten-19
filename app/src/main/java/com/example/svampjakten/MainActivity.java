@@ -26,6 +26,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 });
+                setUserEmail();
             }
 
             @Override
@@ -626,5 +628,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setPinLat = new MarkerOptions().position(new LatLng(setPinDest.latitude, setPinDest.longitude));
         setPinLat.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
         mMap.addMarker(setPinLat);
+    }
+    public void setUserEmail(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        TextView userEmail = findViewById(R.id.firebase_email);
+
+
+        try {
+            user.getEmail();
+            userEmail.setText(user.getEmail());
+
+        }catch (Exception e){
+            Log.d("henkeTag", "setUserEmail: working??");
+        }
     }
 }
