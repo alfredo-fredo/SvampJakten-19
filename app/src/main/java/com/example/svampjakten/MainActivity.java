@@ -65,8 +65,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback/*, CreatedPinCallBack*/{
-
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback/*, CreatedPinCallBack*/ {
+    private MarkerOptions setPinLat;
+    private LatLng setPinDest;
     MarkerOptions customMarker;
     long timeStamp = 1;
     long timeStampEnd = 0;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView =findViewById(R.id.imageView);
+        imageView = findViewById(R.id.imageView);
 
 
         //Getting data from SQLite
@@ -319,7 +320,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
-
         if (darkModes == 1) {
 
             try {
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onMapClick(LatLng destination) {
-
+                setPinDest = destination;
                 if (firebaseUser != null) {
                     if (timeStamp < timeStampEnd) {
 
@@ -412,10 +412,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     } else {
 
                         timeStampEnd = System.currentTimeMillis() + 10000;
-
                         customMarker = new MarkerOptions().position(new LatLng(destination.latitude, destination.longitude));
+                        setPinLat = new MarkerOptions().position(new LatLng(destination.latitude, destination.longitude));
                         customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
-
                         getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment(customMarker.getPosition().latitude, customMarker.getPosition().longitude)).commit();
                     }
                     timeStamp = System.currentTimeMillis();
@@ -426,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
-
 
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -581,13 +579,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 getDownloadUrl(reference);
                 Log.d("Anton", "onSuccess: ");
-                Toast.makeText(MainActivity.this,"Picture uploaded!",Toast.LENGTH_LONG);
+                Toast.makeText(MainActivity.this, "Picture uploaded!", Toast.LENGTH_LONG);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e("Anton", "onFailure: ", e.getCause());
-                Toast.makeText(MainActivity.this,"Uploaded failed!",Toast.LENGTH_LONG);
+                Toast.makeText(MainActivity.this, "Uploaded failed!", Toast.LENGTH_LONG);
             }
         });
     }
@@ -622,5 +620,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
 
+    }
+
+    public void setPin() {
+        setPinLat = new MarkerOptions().position(new LatLng(setPinDest.latitude, setPinDest.longitude));
+        setPinLat.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
+        mMap.addMarker(setPinLat);
     }
 }

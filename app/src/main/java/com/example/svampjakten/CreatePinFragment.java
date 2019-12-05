@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,7 +45,7 @@ public class CreatePinFragment extends Fragment {
     double pinLongitude;
 
 
-    CreatePinFragment(double pinLatitude, double pinLongitude){
+    CreatePinFragment(double pinLatitude, double pinLongitude) {
         this.pinLatitude = pinLatitude;
         this.pinLongitude = pinLongitude;
     }
@@ -119,7 +120,7 @@ public class CreatePinFragment extends Fragment {
                 Intent intent = new Intent(Intent.ACTION_PICK);
 
                 intent.setType("image/*");
-                startActivityForResult(intent,GALLERY_INTENT);
+                startActivityForResult(intent, GALLERY_INTENT);
 
             }
         });
@@ -128,8 +129,14 @@ public class CreatePinFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(placeNameText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
-                createPin(placeNameText.getText().toString(), ratingStars.getRating(), uploadPhoto);
+                if (placeNameText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
+                    createPin(placeNameText.getText().toString(), ratingStars.getRating(), uploadPhoto);
+                //Toast.makeText(getContext(),"please add a photo",Toast.LENGTH_LONG).show();
+
+
+                ////////////
+
+
             }
         });
 
@@ -149,14 +156,15 @@ public class CreatePinFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
+
+
             }
         });
     }
 
 
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         Log.d("Hej", "Pew pew");
         if (requestCode == GALLERY_INTENT) {
             Log.d("Hej", "Brap brap");
@@ -165,15 +173,16 @@ public class CreatePinFragment extends Fragment {
             }
 
         }
-        if(requestCode == CAMERA_REQUEST_CODE){
-            if(resultCode == RESULT_OK) {
+        if (requestCode == CAMERA_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
                 uploadPhoto = (Bitmap) data.getExtras().get("data");
             }
         }
     }
+
     private void handleUpload(Bitmap bitmap, String pinPushId) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,100, outputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
 
         final StorageReference reference = FirebaseStorage.getInstance().getReference().child("kamerabilder").child(pinPushId + ".jpeg");
 
@@ -182,7 +191,8 @@ public class CreatePinFragment extends Fragment {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Toast.makeText(getContext(), "Pin created.", Toast.LENGTH_LONG).show();
                 getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
-
+                ((MainActivity) getActivity()).setPin();
+                Toast.makeText(getContext(), "Successfully uploaded photo", Toast.LENGTH_LONG).show();
                 //createdPinCallBack.pinCreatedCallBack();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -194,9 +204,10 @@ public class CreatePinFragment extends Fragment {
         });
     }
 
-    private void createPin(String placeName, double starRating, final Bitmap bitmap){
+    public void createPin(String placeName, double starRating, final Bitmap bitmap) {
         final String pushRef = myDbRef.push().getKey();
         myDbRef.child(pushRef).setValue(new Pin(new PinLocation(pinLatitude, pinLongitude), placeName, firebaseUser.getUid(), starRating)).addOnFailureListener(new OnFailureListener() {
+
 
             @Override
             public void onFailure(@NonNull Exception e) {
