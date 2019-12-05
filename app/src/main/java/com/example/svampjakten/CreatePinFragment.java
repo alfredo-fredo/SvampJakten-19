@@ -135,15 +135,15 @@ public class CreatePinFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if (placeNameText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
-                    createPin(placeNameText.getText().toString(), ratingStars.getRating(), uploadPhoto);
+                if (placeNameText.getText() != null && commentText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
+                    createPin(placeNameText.getText().toString(),commentText.getText().toString(), ratingStars.getRating(), uploadPhoto);
 
                     View view = getActivity().findViewById(R.id.create_pin_layout);
 
                     Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fast_fade_out);
                     view.startAnimation(anim);
                     view.setVisibility(View.GONE);
-                //Toast.makeText(getContext(),"please add a photo",Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(),"please add a photoURL",Toast.LENGTH_LONG).show();
 
 
                 ////////////
@@ -212,7 +212,7 @@ public class CreatePinFragment extends Fragment {
                 Toast.makeText(getContext(), "Pin created.", Toast.LENGTH_LONG).show();
                 getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
                 ((MainActivity) getActivity()).setPin();
-                Toast.makeText(getContext(), "Successfully uploaded photo", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Successfully uploaded photoURL", Toast.LENGTH_LONG).show();
                 //createdPinCallBack.pinCreatedCallBack();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -224,9 +224,9 @@ public class CreatePinFragment extends Fragment {
         });
     }
 
-    public void createPin(String placeName, double starRating, final Bitmap bitmap) {
+    public void createPin(String placeName, String comment, double starRating, final Bitmap bitmap) {
         final String pushRef = myDbRef.push().getKey();
-        myDbRef.child(pushRef).setValue(new Pin(new PinLocation(pinLatitude, pinLongitude), placeName, firebaseUser.getUid(), starRating)).addOnFailureListener(new OnFailureListener() {
+        myDbRef.child(pushRef).setValue(new Pin(new PinLocation(pinLatitude, pinLongitude), placeName, comment, firebaseUser.getUid(), starRating)).addOnFailureListener(new OnFailureListener() {
 
 
             @Override

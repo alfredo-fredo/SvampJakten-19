@@ -1,21 +1,20 @@
 package com.example.svampjakten;
 
 
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 
 /**
@@ -23,28 +22,25 @@ import android.widget.TextView;
  */
 public class PinInfoFragment extends Fragment {
 
-    /*
+    String placeName;
+    String name;
+    String comment;
+    Uri photoURL;
+    double ratings;
 
-    !!! Den här är inte klar än, men funkar. Ska snyggas till och tänkas över lite design.
-
-     */
-
-    private String name;
-    private String comment;
-    private Bitmap photo;
-
-    TextView nameText;
-    TextView commentText;
-    ImageView photoImageView;
-
-    public PinInfoFragment(String name, String comment, Bitmap photo) {
+    PinInfoFragment(String placeName, String name, String comment, Uri photoURL, double ratings){
+        this.placeName = placeName;
         this.name = name;
         this.comment = comment;
-        if(photo != null){
-            this.photo = photo;
-        }
+        this.photoURL = photoURL;
+        this.ratings = ratings;
     }
 
+    TextView placeNameTextView;
+    TextView nameTextView;
+    TextView commentTextView;
+    ImageView photoImageView;
+    TextView ratingsTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,15 +53,17 @@ public class PinInfoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        nameText = getActivity().findViewById(R.id.userPinName);
-        commentText = getActivity().findViewById(R.id.userPinComment);
-        photoImageView = getActivity().findViewById(R.id.userPinPhoto);
+        placeNameTextView = getActivity().findViewById(R.id.pin_info_name);
+        nameTextView = getActivity().findViewById(R.id.pin_info_name_user);
+        commentTextView = getActivity().findViewById(R.id.pin_info_user_comment);
+        photoImageView = getActivity().findViewById(R.id.pin_info_image);
+        ratingsTextView = getActivity().findViewById(R.id.pin_info_rating);
 
-        nameText.setText(name);
-        commentText.setText(comment);
-        if(photo != null){
-            photoImageView.setImageBitmap(photo);
-        }
+        placeNameTextView.setText(placeName);
+        nameTextView.setText(name);
+        commentTextView.setText(comment);
+        Glide.with(this).load(photoURL).into(photoImageView);
+        ratingsTextView.setText("* " + ratings);
 
         getActivity().findViewById(R.id.pin_info_exit).setOnClickListener(new View.OnClickListener() {
             @Override

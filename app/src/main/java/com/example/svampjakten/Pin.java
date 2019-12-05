@@ -10,9 +10,7 @@ public class Pin {
 
     public String placeName;
     public double placeRating;
-
-    public ArrayList<String> pinComments;
-    public Bitmap pinPhoto;
+    public String comment;
 
     public PinLocation pinLocation;
 
@@ -20,10 +18,11 @@ public class Pin {
 
         }
 
-        Pin(PinLocation pinLocation, String placeName, String placePersonID, double placeRating){
+        Pin(PinLocation pinLocation, String placeName, String placePersonID, String comment, double placeRating){
             this.pinLocation = pinLocation;
             this.placeName = placeName;
             this.placePersonID = placePersonID;
+            this.comment = comment;
             this.placeRating = placeRating;
         }
 }

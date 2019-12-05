@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -36,7 +37,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -61,6 +64,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -303,11 +307,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot dataValues : dataSnapshot.getChildren()) {
-                    Pin myPin = dataValues.getValue(Pin.class);
+                    final Pin myPin = dataValues.getValue(Pin.class);
+                    final String pinReference = dataValues.getKey();
                     try {
                         MarkerOptions pinMarker = new MarkerOptions().position(new LatLng(myPin.pinLocation.latitude, myPin.pinLocation.longitude));
                         pinMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                         mMap.addMarker(pinMarker);
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                /*FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();   <------ THIS CODE NEED WORK..
+                                Uri storageReference = firebaseStorage.getReference("kamerabilder").child(pinReference + ".jpeg").getDownloadUrl().getResult();
+
+                                Fragment fragment = new PinInfoFragment(myPin.placeName, firebaseUser.getEmail(), myPin.comment, storageReference, myPin.placeRating);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, fragment);
+                                */return true;
+                            }
+                        });
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
@@ -399,17 +415,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         long testMilliToSec = testMilli / 1000;
                         Log.d("victor", "kvar" + testMilliToSec);
                         Toast.makeText(getApplicationContext(), getApplicationContext().getString(R.string.please_wait) + testMilliToSec + getString(R.string.time_until), Toast.LENGTH_LONG).show();
-
-                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                            @Override
-                            public boolean onMarkerClick(Marker marker) {
-                                getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new PinInfoFragment("Alfred", "God smak! Mysigt ställe!", null)).commit();
-                                Animation anim = AnimationUtils.loadAnimation(getBaseContext(), R.anim.pin_info_animation);
-                                findViewById(R.id.include_center_fragment).startAnimation(anim);
-                                return true;
-                            }
-                        });
-
 
                     } else {
 
