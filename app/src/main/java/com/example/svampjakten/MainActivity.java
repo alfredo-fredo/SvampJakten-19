@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
-
+        // ------------------->
     }
 
 
@@ -404,19 +404,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         timeStampEnd = System.currentTimeMillis() + 10000;
 
-                        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment()).commit();
                         customMarker = new MarkerOptions().position(new LatLng(destination.latitude, destination.longitude));
                         customMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.logo_pin));
                         mMap.addMarker(customMarker);
                         mMap.animateCamera(CameraUpdateFactory.zoomTo(zoomLevel));
-                        myDbRef.push().setValue(new Pin(new PinLocation(customMarker.getPosition().latitude, customMarker.getPosition().longitude), "Makidonken", firebaseUser.getUid(), 4.3)).addOnFailureListener(new OnFailureListener() {
 
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                myDbRef.child(firebaseUser.getUid()).setValue("failures!!!");
-                            }
-
-                        });
+                        getSupportFragmentManager().beginTransaction().replace(R.id.include_center_fragment, new CreatePinFragment(customMarker.getPosition().latitude, customMarker.getPosition().longitude)).commit();
                     }
                     timeStamp = System.currentTimeMillis();
                     Log.d("victor", "" + new Date(timeStamp));

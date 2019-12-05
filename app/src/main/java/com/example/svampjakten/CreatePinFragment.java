@@ -17,14 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,18 +41,31 @@ import static android.app.Activity.RESULT_OK;
  */
 public class CreatePinFragment extends Fragment {
 
+    double pinLatitude;
+    double pinLongitude;
 
-    FirebaseDatabase database;
-    DatabaseReference myRef;
-    EditText Comment;
-    Button OK;
+    CreatePinFragment(double pinLatitude, double pinLongitude){
+        this.pinLatitude = pinLatitude;
+        this.pinLongitude = pinLongitude;
+    }
+
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference myDbRef;
+    FirebaseUser firebaseUser;
+
+    EditText placeNameText;
+    EditText commentText;
+
+    Button okButton;
+    Button galleryButton;
+    Button takePhotoButton;
+
+    RatingBar ratingStars;
+
+    Bitmap uploadPhoto;
+
     static final int REQUEST_TAKE_PHOTO = 1;
-
-    private Button galleryBtn;
-    private Button takePhotoBtn;
-
-
-    private static final int TAKE_IMAGE_CODE =27;
+    private static final int TAKE_IMAGE_CODE = 27;
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int GALLERY_INTENT = 2;
     private Uri mImageUri = null;
@@ -61,6 +73,7 @@ public class CreatePinFragment extends Fragment {
     private StorageReference storage;
     private String key;
 
+    static String PINS_DB_REF = "Pins";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,13 +87,22 @@ public class CreatePinFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        myDbRef = firebaseDatabase.getReference(PINS_DB_REF);
 
+        placeNameText = getView().findViewById(R.id.create_pin_place_name);
+        commentText = getActivity().findViewById(R.id.create_pin_comment);
+        galleryButton = getView().findViewById(R.id.create_pin_gallery);
+        takePhotoButton = getView().findViewById(R.id.create_pin_add_photo);
+        okButton = getView().findViewById(R.id.create_pin_OK);
+        ratingStars = getView().findViewById(R.id.create_pin_ratingBar);
+
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         storage = FirebaseStorage.getInstance().getReference();
         mStorage = FirebaseStorage.getInstance().getReference();
 
-        takePhotoBtn = (Button) getView().findViewById(R.id.create_pin_add_photo);
-        takePhotoBtn.setOnClickListener(new View.OnClickListener() {
+        takePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -89,11 +111,7 @@ public class CreatePinFragment extends Fragment {
         });
 
 
-
-
-        galleryBtn = (Button) getView().findViewById(R.id.gallery_btn);
-
-        galleryBtn.setOnClickListener(new View.OnClickListener() {
+        galleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -104,41 +122,14 @@ public class CreatePinFragment extends Fragment {
             }
         });
 
-
-
-
-        /*database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("message");
-
-
-        final String currentuser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        OK = getActivity().findViewById(R.id.create_pin_OK);
-        Comment = getActivity().findViewById(R.id.create_pin_comment);
-
-
-
-        OK.setOnClickListener(new View.OnClickListener() {
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
-
-                myRef.child(currentuser).setValue(Comment.getText().toString());
-                // Log.d("test",);
-                getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
-
-
-
-
-
-
+                if(placeNameText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
+                createPin(placeNameText.getText().toString(), ratingStars.getRating(), uploadPhoto);
             }
-
         });
-
-
-         */
 
         getActivity().findViewById(R.id.create_pin_add_photo).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,88 +159,52 @@ public class CreatePinFragment extends Fragment {
         if (requestCode == GALLERY_INTENT) {
             Log.d("Hej", "Brap brap");
             if (resultCode == RESULT_OK) {
-                Uri uri = data.getData();
-                StorageReference filepath = mStorage.child("kamerabilder").child(uri.getLastPathSegment());
-                DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-
-                filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(getContext(),"Picture uploaded!", Toast.LENGTH_LONG).show();
-                    }
-                });
-
+                uploadPhoto = (Bitmap) data.getExtras().get("data");
             }
 
         }
         if(requestCode == CAMERA_REQUEST_CODE){
             if(resultCode == RESULT_OK) {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                handleUpload(bitmap);
+                uploadPhoto = (Bitmap) data.getExtras().get("data");
             }
         }
     }
-    private void handleUpload(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,100, baos);
+    private void handleUpload(Bitmap bitmap, String pinPushId) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100, outputStream);
 
-        //String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        final StorageReference reference = FirebaseStorage.getInstance().getReference().child("kamerabilder").child(".jpeg");
+        final StorageReference reference = FirebaseStorage.getInstance().getReference().child("kamerabilder").child(pinPushId + ".jpeg");
 
-        //Uri uri = data.getData();
-        //StorageReference filepath = reference.child("ProfileImage").child(uri.getLastPathSegment());
-        reference.putBytes(baos.toByteArray()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            /* filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                 @Override
-                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                     getDownloadUrl(reference);
-                 }
-             });
-         }*/
+        reference.putBytes(outputStream.toByteArray()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                getDownloadUrl(reference);
-                Toast.makeText(getContext(),"Picture uploaded!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Pin created.", Toast.LENGTH_LONG).show();
+                getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(),"Upload failed!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Failed to create pin..", Toast.LENGTH_LONG).show();
+                getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
             }
         });
     }
 
+    private void createPin(String placeName, double starRating, final Bitmap bitmap){
+        final String pushRef = "koolaKillen";
+        myDbRef.child(pushRef).setValue(new Pin(new PinLocation(pinLatitude, pinLongitude), placeName, firebaseUser.getUid(), starRating)).addOnFailureListener(new OnFailureListener() {
 
-    private void getDownloadUrl (StorageReference reference){
-        reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
-            public void onSuccess(Uri uri) {
-                Log.d("Anton", "onSuccess: " + uri);
-                setUserProfileUrl(uri);
+            public void onFailure(@NonNull Exception e) {
+
             }
-        });
 
-    }
-
-    private void setUserProfileUrl (Uri uri){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        UserProfileChangeRequest request = new UserProfileChangeRequest.Builder().setPhotoUri(uri).build();
-
-        user.updateProfile(request).addOnSuccessListener(new OnSuccessListener<Void>() {
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(getContext(), "Profile image uploaded", Toast.LENGTH_SHORT);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), "Profile image failed...", Toast.LENGTH_SHORT);
+                handleUpload(bitmap, pushRef);
             }
         });
-    }
-    private void createPin(){
-
     }
 
 
