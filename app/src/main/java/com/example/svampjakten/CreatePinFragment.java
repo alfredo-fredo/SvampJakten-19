@@ -12,10 +12,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
@@ -134,6 +137,12 @@ public class CreatePinFragment extends Fragment {
 
                 if (placeNameText.getText() != null && (ratingStars.getRating() > 0) && uploadPhoto != null)
                     createPin(placeNameText.getText().toString(), ratingStars.getRating(), uploadPhoto);
+
+                    View view = getActivity().findViewById(R.id.create_pin_layout);
+
+                    Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.fast_fade_out);
+                    view.startAnimation(anim);
+                    view.setVisibility(View.GONE);
                 //Toast.makeText(getContext(),"please add a photo",Toast.LENGTH_LONG).show();
 
 
