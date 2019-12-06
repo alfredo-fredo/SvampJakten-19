@@ -212,7 +212,7 @@ public class CreatePinFragment extends Fragment {
                 Toast.makeText(getContext(), "Pin created.", Toast.LENGTH_LONG).show();
                 getActivity().findViewById(R.id.create_pin_layout).setVisibility(View.GONE);
                 ((MainActivity) getActivity()).setPin();
-                Toast.makeText(getContext(), "Successfully uploaded photoURL", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Pin uploaded", Toast.LENGTH_LONG).show();
                 //createdPinCallBack.pinCreatedCallBack();
             }
         }).addOnFailureListener(new OnFailureListener() {

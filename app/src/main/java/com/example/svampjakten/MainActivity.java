@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         imageView = findViewById(R.id.imageView);
 
 
+
         //Getting data from SQLite
         getData();
 
@@ -570,8 +571,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             switch (requestCode) {
                 case RESULT_OK:
                     Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                    imageView.setImageBitmap(bitmap);
                     handleUpload(bitmap);
+                    imageView.setImageBitmap(bitmap);
             }
         }
     }
